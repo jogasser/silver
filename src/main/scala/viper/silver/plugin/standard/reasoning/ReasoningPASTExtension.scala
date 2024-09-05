@@ -43,10 +43,10 @@ case class PExistentialElim(obtainKw: PReserved[PObtainKeyword.type], delimitedV
 }
 
 case class PUniversalIntro(proveKw: PReserved[PProveKeyword.type], forallKw: PKw.Forall, delimitedVarDecls: PDelimited[PLocalVarDecl, PSym.Comma], triggers: Seq[PTrigger], assumingKw: PReserved[PAssumingKeyword.type], e1: PExp, impliesKw: PReserved[PImpliesKeyword.type], e2: PExp, block: PSeqn)(val pos: (Position, Position)) extends PExtender with PStmt with PScope {
-  lazy val varDecls: Seq[PLocalVarDecl] = delimitedVarDecls.toSeq
+  lazy val scopedDecls: Seq[PLocalVarDecl] = delimitedVarDecls.toSeq
 
   override def typecheck(t: TypeChecker, n: NameAnalyser): Option[Seq[String]] = {
-    varDecls foreach (v => t.check(v.typ))
+    scopedDecls foreach (v => t.check(v.typ))
     triggers foreach (_.exp.inner.toSeq foreach (tpe => t.checkTopTyped(tpe, None)))
     t.check(e1, Bool)
     t.check(e2, Bool)
@@ -56,11 +56,12 @@ case class PUniversalIntro(proveKw: PReserved[PProveKeyword.type], forallKw: PKw
 
   override def translateStmt(t: Translator): Stmt = {
     UniversalIntro(
-      varDecls.map { variable => LocalVarDecl(variable.idndef.name, t.ttyp(variable.typ))(t.liftPos(variable)) },
+      scopedDecls.map { variable => LocalVarDecl(variable.idndef.name, t.ttyp(variable.typ))(t.liftPos(variable)) },
       triggers.map { t1 => Trigger(t1.exp.inner.toSeq.map { t2 => t.exp(t2) })(t.liftPos(t1)) },
       t.exp(e1),
       t.exp(e2),
-      t.stmt(block).asInstanceOf[Seqn])(t.liftPos(block))
+      t.stmt(block).asInstanceOf[Seqn]
+    )(t.liftPos(this))
   }
 }
 

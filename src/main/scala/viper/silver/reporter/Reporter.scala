@@ -7,6 +7,7 @@
 package viper.silver.reporter
 
 import java.io.FileWriter
+import scala.collection.mutable
 import scala.collection.mutable._
 
 trait Reporter {
@@ -61,9 +62,9 @@ case class CSVReporter(name: String = "csv_reporter", path: String = "report.csv
           csv_file.write(s"WarningsDuringParsing,${error}\n")
         })
 
-      case EntitySuccessMessage(_, concerning, time, cached) =>
+      case EntitySuccessMessage(_, concerning, time, _, cached) =>
         csv_file.write(s"EntitySuccessMessage,${concerning.name},${time}, ${cached}\n")
-      case EntityFailureMessage(_, concerning, time, _, cached) =>
+      case EntityFailureMessage(_, concerning, time, _, _, cached) =>
         csv_file.write(s"EntityFailureMessage,${concerning.name},${time}, ${cached}\n")
 
       case BranchFailureMessage(_, concerning, _, cached) =>
@@ -176,8 +177,8 @@ case class StdIOReporter(name: String = "stdout_reporter", timeInfo: Boolean = t
         println( s"encountered missing dependency: $text" )
 
       // These get reported without being transformed by any plugins, it would be an issue if we printed them to STDOUT.
-      case EntitySuccessMessage(_, _, _, _) =>    // FIXME Currently, we only print overall verification results to STDOUT.
-      case EntityFailureMessage(_, _, _, _, _) =>    // FIXME Currently, we only print overall verification results to STDOUT.
+      case EntitySuccessMessage(_, _, _, _, _) =>    // FIXME Currently, we only print overall verification results to STDOUT.
+      case EntityFailureMessage(_, _, _, _, _, _) =>    // FIXME Currently, we only print overall verification results to STDOUT.
       case BranchFailureMessage(_, _, _, _) =>    // FIXME Currently, we only print overall verification results to STDOUT.
       case ConfigurationConfirmation(_) =>     // TODO  use for progress reporting
         //println( s"Configuration confirmation: $text" )
@@ -192,6 +193,20 @@ case class StdIOReporter(name: String = "stdout_reporter", timeInfo: Boolean = t
         println( s"Cannot properly print message of unsupported type: $msg" )
     }
     counter = counter + 1
+  }
+}
+
+case class StatisticsReporter(reporter: Reporter, name: String = "statistics_reporter") extends Reporter {
+  val statistics: mutable.Map[Entity, Statistics] = new mutable.HashMap[Entity, Statistics]()
+
+  override def report(msg: Message): Unit = {
+    msg match {
+      case EntitySuccessMessage(_, entity, _, stats, _) => statistics.put(entity, stats)
+      case EntityFailureMessage(_, entity, _, _, stats, _) => statistics.put(entity, stats)
+      case _ =>
+    }
+
+    reporter.report(msg)
   }
 }
 

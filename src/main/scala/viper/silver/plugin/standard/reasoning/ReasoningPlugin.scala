@@ -223,7 +223,7 @@ class ReasoningPlugin(@unused reporter: viper.silver.reporter.Reporter,
     val newTrigs = u.triggers.map(t => Trigger(t.exps.map(e1 => applySubstitution(newVarMap, e1)))(t.pos))
     val lbl = uniqueName("l", usedNames)
     val errTransformer = ErrTrafo({
-      case AssertFailed(_, r, c) => UniversalIntroFailed(u, r, c)
+      case AssertFailed(_, r, c) => UniversalIntroFailed(u.implyingExp, r, c)
       case d => d
     })
 

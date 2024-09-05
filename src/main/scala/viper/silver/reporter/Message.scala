@@ -82,26 +82,26 @@ object VerificationResultMessage {
     *  is a [[Failure]]) a [[EntityFailureMessage]] is created.
     */
   def apply(verifier: String, entity: Entity, verificationTime: Time,
-            result: VerificationResult)
+            result: VerificationResult, entityStatistics: Statistics)
   : VerificationResultMessage = {
 
     result match {
       case Success =>
-        EntitySuccessMessage(verifier, entity, verificationTime)
+        EntitySuccessMessage(verifier, entity, verificationTime, entityStatistics)
       case failure: Failure =>
-        EntityFailureMessage(verifier, entity, verificationTime, failure)
+        EntityFailureMessage(verifier, entity, verificationTime, failure, entityStatistics)
     }
   }
 
   def apply(verifier: String, entity: Entity, verificationTime: Time,
-            result: VerificationResult, cached: Boolean)
+            result: VerificationResult, cached: Boolean, entityStatistics: Statistics)
   : VerificationResultMessage = {
 
     result match {
       case Success =>
-        EntitySuccessMessage(verifier, entity, verificationTime, cached)
+        EntitySuccessMessage(verifier, entity, verificationTime, entityStatistics, cached)
       case failure: Failure =>
-        EntityFailureMessage(verifier, entity, verificationTime, failure, cached)
+        EntityFailureMessage(verifier, entity, verificationTime, failure, entityStatistics, cached)
     }
   }
 }
@@ -114,9 +114,9 @@ object CachedEntityMessage {
   : VerificationResultMessage =
     result match {
       case Success =>
-        EntitySuccessMessage(verifier, entity, 0L.asInstanceOf[Time], cached = true)
+        EntitySuccessMessage(verifier, entity, 0L.asInstanceOf[Time], NoStatistics(), cached = true)
       case failure: Failure =>
-        EntityFailureMessage(verifier, entity, 0L.asInstanceOf[Time], failure, cached = true)
+        EntityFailureMessage(verifier, entity, 0L.asInstanceOf[Time], failure, NoStatistics(), cached = true)
     }
 }
 
@@ -138,10 +138,15 @@ case class OverallFailureMessage(verifier: String, verificationTime: Time, resul
     s"verifier=${verifier}, time=${verificationTime.toString}, result=${result.toString})"
 }
 
+trait Statistics {
+}
+
+case class NoStatistics() extends Statistics
+
 // Entity results concern results for specific program entities (these are presently
 // produced by the Silicon backend)
 case class EntitySuccessMessage(verifier: String, concerning: Entity,
-                                verificationTime: Time, cached: Boolean = false)
+                                verificationTime: Time, statistics: Statistics, cached: Boolean = false)
   extends VerificationResultMessage {
 
   override def toString: String = s"entity_success_message(" +
@@ -152,7 +157,7 @@ case class EntitySuccessMessage(verifier: String, concerning: Entity,
 }
 
 case class EntityFailureMessage(verifier: String, concerning: Entity,
-                                verificationTime: Time, result: Failure, cached: Boolean = false)
+                                verificationTime: Time, result: Failure, statistics: Statistics, cached: Boolean = false)
   extends VerificationResultMessage {
 
   override def toString: String = s"entity_failure_message(" +
