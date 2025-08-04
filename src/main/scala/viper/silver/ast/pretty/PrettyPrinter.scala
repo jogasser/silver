@@ -10,6 +10,7 @@ import scala.language.implicitConversions
 import scala.collection.immutable.Queue
 import scala.collection.immutable.Queue.{empty => emptyDq}
 import viper.silver.ast._
+import viper.silver.plugin.standard.adt.AdtType
 import viper.silver.plugin.standard.termination.DecreasesClause
 import viper.silver.verifier.DummyNode
 
@@ -635,6 +636,7 @@ object FastPrettyPrinter extends FastPrettyPrinterBase with BracketPrettyPrinter
       case SetType(elemType) => text("Set") <> brackets(show(elemType))
       case MultisetType(elemType) => text("Multiset") <> brackets(show(elemType))
       case MapType(keyType, valueType) => text("Map") <> brackets(show(keyType) <> "," <> show(valueType))
+      case AdtType(name, instances) => text(name) <> parens(ssep(instances.map(t => show(t._2)).toSeq, space))
       case TypeVar(v) => v
       case dt@DomainType(domainName, typVarsMap) =>
         val typArgs = dt.typeParameters map (t => show(typVarsMap.getOrElse(t, t)))

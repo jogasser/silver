@@ -132,11 +132,10 @@ class AdtPlugin(@unused reporter: viper.silver.reporter.Reporter,
   }
 
   override def beforeVerify(input: Program): Program = {
-    if (deactivated) {
+    if (deactivated || config.disableAdtDomainTransformation.getOrElse(true)) {
       return input
     }
     new AdtEncoder(input).encode(isTerminationPluginActive)
   }
-
 }
 

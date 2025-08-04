@@ -132,6 +132,13 @@ abstract class SilFrontendConfig(args: Seq[String], private var projectName: Str
     hidden = true
   )
 
+  val disableAdtDomainTransformation = opt[Boolean]("disableAdtDomainTransformation",
+    descr = "Disable transformation of ADTs into Viper Domains.",
+    default = Some(false),
+    noshort = true,
+    hidden = true
+  )
+
   val assumeInjectivityOnInhale = opt[Boolean]("assumeInjectivityOnInhale",
     descr = "Assumes injectivity of the receiver expression when inhaling quantified permissions, instead of checking it.",
     default = Some(false),

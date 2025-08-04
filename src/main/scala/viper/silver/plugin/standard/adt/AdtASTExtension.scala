@@ -109,7 +109,7 @@ object AdtConstructor {
   * @param typeParameters    The type variables of the ADT type.
   */
 case class AdtType(adtName: String, partialTypVarsMap: Map[TypeVar, Type])
-                  (val typeParameters: Seq[TypeVar]) extends ExtensionType {
+                  (val typeParameters: Seq[TypeVar]) extends GenericExtensionType {
 
   override lazy val check: Seq[ConsistencyError] = if (!(typeParameters.toSet == typVarsMap.keys.toSet)) {
     Seq(ConsistencyError(s"${typeParameters.toSet} doesn't equal ${typVarsMap.keys.toSet}", NoPosition))
@@ -121,16 +121,6 @@ case class AdtType(adtName: String, partialTypVarsMap: Map[TypeVar, Type])
     */
   val typVarsMap: Map[TypeVar, Type] =
     typeParameters.map(tp => tp -> partialTypVarsMap.getOrElse(tp, tp)).to(implicitly)
-
-  /**
-    * Takes a mapping of type variables to types and substitutes all
-    * occurrences of those type variables with the corresponding type.
-    */
-  override def substitute(newTypVarsMap: Map[TypeVar, Type]): Type = {
-    assert(typVarsMap.keys.toSet equals this.typeParameters.toSet)
-    val newTypeMap = typVarsMap.map(kv => kv._1 -> kv._2.substitute(newTypVarsMap))
-    AdtType(adtName, newTypeMap)(typeParameters)
-  }
 
   /** Is this a concrete type (i.e. no uninstantiated type variables)? */
   override def isConcrete: Boolean = typVarsMap.values.forall(_.isConcrete)
@@ -151,6 +141,15 @@ case class AdtType(adtName: String, partialTypVarsMap: Map[TypeVar, Type])
     }
   }
 
+  override type MyType = AdtType
+
+  override def genericName: String = adtName
+
+  override protected def make(newTypVarsMap: Map[TypeVar, Type]): MyType = {
+    assert(typVarsMap.keys.toSet equals this.typeParameters.toSet)
+    val newTypeMap = typVarsMap.map(kv => kv._1 -> kv._2.substitute(newTypVarsMap))
+    AdtType(adtName, newTypeMap)(typeParameters)
+  }
 }
 
 object AdtType {

@@ -206,3 +206,6 @@ trait ExtensionType extends Type{
   def getAstType: Type = ???
   def prettyPrint: PrettyPrintPrimitives#Cont = ???
 }
+
+trait GenericExtensionType extends GenericType with ExtensionType {
+}

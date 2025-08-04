@@ -7,6 +7,7 @@
 package viper.silver.ast.utility
 
 import viper.silver.ast._
+import viper.silver.plugin.ExtensionTypeCoordinate
 
 import scala.collection.mutable
 
@@ -365,6 +366,7 @@ object DomainInstances {
     case ct: CollectionType => Set(ct.elementType)
     case m: MapType => Set(m.keyType, m.valueType)
     case _: BuiltInType => Set()
+    case et: ExtensionType => ExtensionTypeCoordinate.down1Types(et)
     case _: TypeVar => Set()
   }
 
@@ -408,6 +410,7 @@ object DomainInstances {
     case dt: DomainType => new DomainInstanceTypeCoordinate(dt,
       dt.typeParameters.map(tv => makeTypeCoordinate(dt.typVarsMap(tv)))
     )
+    case et: ExtensionType => ExtensionTypeCoordinate.makeTypeCoordinate(et)
     case _:TypeVar => throw new Exception("Internal error in type system - unexpected non-ground type <" + t.toString() + ">")
   }
 
@@ -452,7 +455,7 @@ object DomainInstances {
     override def subTCs = Set()
 //    override def down: Set[TypeCoordinate] = Set(this)
   }
-  abstract sealed case class GenericInstanceTypeCoordinate(gname: String, args: Seq[TypeCoordinate])(val gt: GenericType)
+  abstract case class GenericInstanceTypeCoordinate(gname: String, args: Seq[TypeCoordinate])(val gt: GenericType)
     extends TypeCoordinate(gt){
     def typeSubstitution: Map[TypeVar, Type]
     override def subTCs: Set[TypeCoordinate] = args.toSet
@@ -480,7 +483,6 @@ object DomainInstances {
     override def typeSubstitution: Map[TypeVar, Type] = dt.typVarsMap
 //    val typeArguments = dt.typeArguments
   }
-
 
   case class TarjanNode[N](n: N, var es: Array[TarjanNode[N]], var index: Int, var lowIndex: Int)
 
