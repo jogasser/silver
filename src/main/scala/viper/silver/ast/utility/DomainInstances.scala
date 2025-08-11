@@ -8,6 +8,7 @@ package viper.silver.ast.utility
 
 import viper.silver.ast._
 import viper.silver.plugin.ExtensionTypeCoordinate
+import viper.silver.plugin.standard.adt.{AdtConstructorApp, AdtType, Adt}
 
 import scala.collection.mutable
 
@@ -184,8 +185,16 @@ object DomainInstances {
       }).flatMap(downClosureGround).toSet
 
 
+
+    p.deepCollect{
+      case dfa: DomainFuncApp if dfa.typVarMap.values.forall(_.isConcrete) => dfa
+    }.flatMap(dfa => {
+
     var allDirectGroundTypes: Set[Type] = p.deepCollect({
       case t: Type if t.isConcrete => downClosureGround(t)
+      case con: AdtConstructorApp if con.typVarMap.values.forall(_.isConcrete) =>
+        val optAdt = p.extensions.collect({ case a: Adt => a }).find(a => a.name == con.adtName)
+        downClosureGround(AdtType(optAdt.get, con.typVarMap))
       case dfa: DomainFuncApp if dfa.typVarMap.values.forall(_.isConcrete) =>
         val d = p.findDomain(dfa.func(p).domainName)
         downClosureGround(DomainType(d, dfa.typVarMap))
@@ -346,6 +355,10 @@ object DomainInstances {
   def getFTVDepths(t: Type): Map[TypeVar, Int] = t match {
     case dt: DomainType =>
       dt.typVarsMap.flatMap {
+        case (_: TypeVar, t: Type) => getFTVDepths(t).map { case (tv2: TypeVar, d: Int) => tv2 -> d.+(1) }
+      }
+    case adt: AdtType =>
+      adt.typVarsMap.flatMap {
         case (_: TypeVar, t: Type) => getFTVDepths(t).map { case (tv2: TypeVar, d: Int) => tv2 -> d.+(1) }
       }
     case ct: CollectionType => getFTVDepths(ct.elementType).map { case (tv2: TypeVar, d: Int) => tv2 -> d.+(1) }

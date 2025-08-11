@@ -1,3 +1,5 @@
+// TODO ADTS: invalid datatype declaration, unknown sort 'Seq<kTree>'
+
 adt SimpleList {
     SimpleNil()
     SimpleCons(value: Int, tail: SimpleList)

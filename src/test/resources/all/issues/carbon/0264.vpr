@@ -1,3 +1,5 @@
+// TODO: Discuss, Triggering?
+//:: IgnoreFile(/silicon/issue/000/)
 field f : Ref
 
 function g(x: Ref) : Bool

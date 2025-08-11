@@ -1,3 +1,5 @@
+// TODO ADTS: Expected both operands to be of the same sort...
+
 domain SizeDomain[T] {
     function size(collection:T): Int
 }

@@ -1,3 +1,5 @@
+// TODO ADTS: assertion failed
+
 import <adt/derives.vpr>
 
 adt List[T] {

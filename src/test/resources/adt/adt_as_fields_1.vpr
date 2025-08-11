@@ -1,3 +1,4 @@
+// TODO ADTS: unknown constant ___is_Nil_
 adt List[T] {
     Nil()
     Cons(value: T, tail: List[T])

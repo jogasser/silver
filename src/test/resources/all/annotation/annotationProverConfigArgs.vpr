@@ -18,7 +18,6 @@ function f1(i: Int, i2: Int): Int
 function f2(i: Int, i2: Int): Int
     requires i >= 0
     requires i2 >= 0
-    //:: UnexpectedOutput(postcondition.violated:assertion.false, /silicon/issue/000/)
     ensures result >= 0
 {
     i * i2
@@ -45,7 +44,6 @@ method m2(i: Int, i2: Int)
     requires i >= 0
     requires i2 >= 0
 {
-    //:: UnexpectedOutput(assert.failed:assertion.false, /silicon/issue/000/)
     assert i * i2 >= 0
 }
 

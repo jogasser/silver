@@ -2,8 +2,8 @@ package viper.silver.plugin
 
 import viper.silver.ast.utility.DomainInstances
 import viper.silver.ast.{ExtensionType, Program, Type, TypeVar}
-import viper.silver.ast.utility.DomainInstances.{GenericInstanceTypeCoordinate, TypeCoordinate}
-import viper.silver.plugin.standard.adt.AdtType
+import viper.silver.ast.utility.DomainInstances.{GenericInstanceTypeCoordinate, TypeCoordinate, collectDomainTypes}
+import viper.silver.plugin.standard.adt.{Adt, AdtType}
 
 object ExtensionTypeCoordinate {
 
@@ -19,9 +19,11 @@ object ExtensionTypeCoordinate {
 
   sealed class AdtTypeCoordinate(val adt: AdtType, typeArgs: Seq[TypeCoordinate])
     extends GenericInstanceTypeCoordinate(adt.adtName, typeArgs)(adt) {
-    override def collectTypes(p: Program): Set[Type] = Set()
-
+    override def collectTypes(p: Program): Set[Type] = {
+      val adts = p.extensions.collect({ case a: Adt => a }).map(adt => adt.name -> adt).toMap
+      collectDomainTypes(adts(adt.adtName), p)
+    }
     // TODO test Adts with Domain type args & Domain with ADT type args
-    override def typeSubstitution: Map[TypeVar, Type] = Map()
+    override def typeSubstitution: Map[TypeVar, Type] = adt.typVarsMap
   }
 }

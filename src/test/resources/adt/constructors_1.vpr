@@ -1,30 +1,30 @@
-adt List[T] {
+adt Test[T] {
     Nil()
-    Cons(value: T, tail: List[T])
+    Cons(value: T, tail: Test[T])
 }
 
 method constructors_1()
 {
-    var list1: List[Int]
+    var list1: Test[Int]
     list1 := Cons(1, Cons(1, Cons(1, Cons(1, Cons(1, Cons(1, Nil()))))))
 
-    var list2: List[List[Bool]]
+    var list2: Test[Test[Bool]]
     list2 := Cons(Cons(true, Cons(true, Cons(true, Cons(true, Cons(true, Cons(true, Nil())))))), Nil())
 
-    var list3: List[Seq[Int]]
+    var list3: Test[Seq[Int]]
     list3 := Cons(Seq(1,2,3), Nil())
 
-    var list4: List[Set[Bool]]
+    var list4: Test[Set[Bool]]
     list4 := Cons(Set(true, false), Nil())
 
 
-    var list5: List[Map[Int, Int]]
+    var list5: Test[Map[Int, Int]]
     var m1: Map[Int, Int]
     m1 := m1[1 := 1]
     list5 := Cons(m1, Nil())
 
-    var list6: List[Map[Int, List[Int]]]
-    var m2: Map[Int, List[Int]]
+    var list6: Test[Map[Int, Test[Int]]]
+    var m2: Map[Int, Test[Int]]
     m2 := m2[1 := Cons(1, Cons(2, Nil()))]
     list6 := Cons(m2, Cons(m2, Nil()))
    

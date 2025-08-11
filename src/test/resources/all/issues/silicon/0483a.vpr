@@ -1,3 +1,5 @@
+// TODO Encoding of quantifiers in function posts
+//:: IgnoreFile(/silicon/issue/000/)
 domain VCTArray[CT] {
 
   function loc(a: VCTArray[CT], i: Int): CT

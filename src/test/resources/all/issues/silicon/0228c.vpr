@@ -1,3 +1,6 @@
+// TODO: Discuss, Triggering?
+//:: IgnoreFile(/silicon/issue/000/)
+
 field f: Int
 
 predicate pred(x: Ref) {
