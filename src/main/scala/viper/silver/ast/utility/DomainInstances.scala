@@ -184,12 +184,6 @@ object DomainInstances {
         }
       }).flatMap(downClosureGround).toSet
 
-
-
-    p.deepCollect{
-      case dfa: DomainFuncApp if dfa.typVarMap.values.forall(_.isConcrete) => dfa
-    }.flatMap(dfa => {
-
     var allDirectGroundTypes: Set[Type] = p.deepCollect({
       case t: Type if t.isConcrete => downClosureGround(t)
       case con: AdtConstructorApp if con.typVarMap.values.forall(_.isConcrete) =>
