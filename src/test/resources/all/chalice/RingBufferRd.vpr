@@ -1,6 +1,4 @@
-
-// TODO: Discuss in Meeting, actual error?
-//:: IgnoreFile(/silicon/issue/000/)
+// TODO investigate further
 
 // Any copyright is dedicated to the Public Domain.
 // http://creativecommons.org/publicdomain/zero/1.0/
@@ -74,6 +72,7 @@ method Head(this: Ref) returns (x: Int)
     fold acc(Valid(this), wildcard);
   }
 
+// |this.data| > 0, because Contents(this) != Seq[Int]();
   function HeadF(this: Ref): Int
     requires acc(Valid(this), wildcard);
     requires Contents(this) != Seq[Int]();

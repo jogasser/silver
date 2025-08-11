@@ -1,5 +1,3 @@
-// TODO ADTS: unknown constant ___is_C1_
-
 adt ADT[T] {
     C1()
     C2(p21: T, p22: ADT[T])

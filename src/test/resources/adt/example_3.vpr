@@ -1,5 +1,3 @@
-// TODO ADTS: unknown constant ___is_Nil_
-
 adt List {
     Nil()
     Cons(head: Int, tail: List)
