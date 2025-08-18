@@ -19,11 +19,9 @@ object ExtensionTypeCoordinate {
 
   sealed class AdtTypeCoordinate(val adt: AdtType, typeArgs: Seq[TypeCoordinate])
     extends GenericInstanceTypeCoordinate(adt.adtName, typeArgs)(adt) {
-    override def collectTypes(p: Program): Set[Type] = {
-      val adts = p.extensions.collect({ case a: Adt => a }).map(adt => adt.name -> adt).toMap
-      collectDomainTypes(adts(adt.adtName), p)
-    }
+    override def collectTypes(p: Program): Set[Type] = Set()
+
     // TODO test Adts with Domain type args & Domain with ADT type args
-    override def typeSubstitution: Map[TypeVar, Type] = adt.typVarsMap
+    override def typeSubstitution: Map[TypeVar, Type] = Map()
   }
 }
