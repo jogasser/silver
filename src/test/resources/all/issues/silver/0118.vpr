@@ -1,5 +1,4 @@
 // TODO Timeout rec func
-//:: IgnoreFile(/silicon/issue/000/)
 // Any copyright is dedicated to the Public Domain.
 // http://creativecommons.org/publicdomain/zero/1.0/
 
@@ -14,7 +13,8 @@ function zip(xs: Seq[Ref], ys: Seq[Ref]): Seq[Ref]
 method test02(xs: Seq[Ref], ys: Seq[Ref], x: Ref, y: Ref)
   requires xs == Seq(x)
   requires ys == Seq(y)
-  //:: UnexpectedOutput(postcondition.violated:assertion.false, /silver/issue/118/)
+  // TODO does not occur with cvc5
+  // UnexpectedOutput(postcondition.violated:assertion.false, /silver/issue/118/)
   ensures  Seq(x, y) == zip(xs, ys) // Fails w/o A1
 {
   // assert zip(xs, ys) == Seq(x, y) ++ zip(xs[1..], ys[1..]) // (A1) Needed

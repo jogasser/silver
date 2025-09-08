@@ -1,5 +1,4 @@
-// TODO timeout rec fun
-//:: IgnoreFile(/silicon/issue/000/)
+// TODO Timeout rec func
 
 adt Tree {
     Leaf()
