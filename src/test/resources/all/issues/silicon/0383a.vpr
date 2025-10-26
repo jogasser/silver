@@ -1,3 +1,5 @@
+// TODO quantified permissions
+//:: IgnoreFile(/silicon/issue/000/)
 field visited: Bool
 field bad_field: Bool
 

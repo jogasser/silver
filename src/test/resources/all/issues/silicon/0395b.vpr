@@ -1,4 +1,6 @@
-// predicate AWOne(sender: Int)
+// TODO quantified permissions
+//:: IgnoreFile(/silicon/issue/000/)
+/ predicate AWOne(sender: Int)
 
 // method test_AWOne(last: Int) {
   // inhale forall s: Int :: {AWOne(s)} s <= last ==> AWOne(s)

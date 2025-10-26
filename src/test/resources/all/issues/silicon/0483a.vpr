@@ -1,4 +1,4 @@
-// TODO Encoding of quantifiers in function posts
+// TODO quantifier in functions
 //:: IgnoreFile(/silicon/issue/000/)
 domain VCTArray[CT] {
 

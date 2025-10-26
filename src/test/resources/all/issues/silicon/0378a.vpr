@@ -1,4 +1,5 @@
-// TODO Encoding of quantifier in function body
+// TODO domains
+// TODO quantifier in functions
 //:: IgnoreFile(/silicon/issue/000/)
 // Any copyright is dedicated to the Public Domain.
 // http://creativecommons.org/publicdomain/zero/1.0/

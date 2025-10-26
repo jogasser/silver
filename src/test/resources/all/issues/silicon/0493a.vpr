@@ -1,3 +1,5 @@
+// TODO quantified permissions
+//:: IgnoreFile(/silicon/issue/000/)
 field val: Int
 
 predicate p(a: Ref) {

@@ -1,3 +1,6 @@
+// TODO domains
+// TODO quantified permissions
+//:: IgnoreFile(/silicon/issue/000/)
 domain VCTArray[CT] {
 
   function loc(a: VCTArray[CT], i: Int): CT

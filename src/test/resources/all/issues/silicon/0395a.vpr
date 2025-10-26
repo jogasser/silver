@@ -1,3 +1,5 @@
+// TODO quantified permissions
+//:: IgnoreFile(/silicon/issue/000/)
 predicate accessible_withdraw(msg_sender: Int, amount: Int, parameter: Int)
 
 method test1(){

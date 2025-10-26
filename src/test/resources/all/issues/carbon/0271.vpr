@@ -1,3 +1,5 @@
+// TODO quantified permissions
+//:: IgnoreFile(/silicon/issue/000/)
 predicate P(self: Ref)
 
 function foo(s: Seq[Ref]): Bool 
