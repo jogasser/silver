@@ -10,6 +10,7 @@ import viper.silver.ast._
 import viper.silver.ast.utility.Statements.EmptyStmt
 import viper.silver.ast.utility.{Expressions, ViperStrategy}
 import viper.silver.ast.utility.rewriter.{ContextCustom, Strategy, Traverse}
+import viper.silver.plugin.standard.adt.{AdtConstructorApp, AdtDestructorApp, AdtDiscriminatorApp}
 import viper.silver.verifier.ConsistencyError
 
 /**
@@ -165,6 +166,19 @@ trait ExpTransformer extends ProgramManager with ErrorReporter {
 
     case fa: FuncLikeApp =>
       val argStmts = fa.args.map(transformExp(_, c, false))
+      Seqn(argStmts, Nil)()
+
+    // TODO ignore adt termination for now
+    case cons: AdtConstructorApp =>
+      val argStmts = cons.args.map(transformExp(_, c, false))
+      Seqn(argStmts, Nil)()
+
+    case dis: AdtDiscriminatorApp =>
+      val argStmts = dis.subExps.map(transformExp(_, c, false))
+      Seqn(argStmts, Nil)()
+
+    case des: AdtDestructorApp =>
+      val argStmts = des.subExps.map(transformExp(_, c, false))
       Seqn(argStmts, Nil)()
 
     case e: ExtensionExp => reportUnsupportedExp(e)

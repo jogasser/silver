@@ -8,6 +8,7 @@ package viper.silver.ast.utility
 
 import viper.silver.ast._
 import viper.silver.plugin.ExtensionTypeCoordinate
+import viper.silver.plugin.standard.adt.{AdtType, AdtDestructorApp, AdtConstructorApp}
 
 import scala.collection.mutable
 
@@ -24,12 +25,6 @@ object DomainInstances {
   def getInstanceMembers(p: Program, dt: DomainType): (Seq[DomainFunc], Seq[DomainAxiom]) = {
     val domain = p.findDomain(dt.domainName)
 
-    /*      for (a <- domain.axioms){
-        var sa = substitute(a, dt.typVarsMap,p)
-        var types = collectGroundTypes(sa,p)
-        if (!types.subsetOf(p.groundTypeInstances))
-          println("")
-      }*/
     val functions = domain.functions.map(substitute(_, dt.typVarsMap, p)).filter(collectGroundTypes(_, p).subsetOf(p.groundTypeInstances)).distinct
     val axioms = domain.axioms.map(substitute(_, dt.typVarsMap, p)).filter(collectGroundTypes(_, p).subsetOf(p.groundTypeInstances)).distinct
 
@@ -52,67 +47,8 @@ object DomainInstances {
 
   ///////////////////////////////////////////////////////////////////////////////////////////
   //Classes for generic type ground instances
-  abstract class GroundTypeInstance
-
-  case class TypeInstance(domain: Domain, arguments: Seq[GroundTypeInstance]) extends GroundTypeInstance
-
-  case class AtomicTypeInstance(t: Type) extends GroundTypeInstance
-
-  case class DomainParameter(d: Domain, tv: TypeVar) {
-    assert(d.typVars contains tv)
-
-    override def toString: String = d.name + "[" + tv.name + "]"
-  }
-
-  case class DomainParameterDependency(domainParameter: DomainParameter, depth: Int)
-
 
   def findNecessaryTypeInstances(p: Program, tcThreshold: Int = 1): Set[Type] = {
-    /*
-    /*    println("Calculating instance graph")
-    println("  Domains:")
-    domains.foreach(
-      d=>{
-        println("    " + d.name + "[" + d.typVars.mkString(",") + "]")
-        getDomainTypeInstances(d).foreach(
-          t => println("      " + t.toString())
-        )
-      }
-    )
-
-    println("  Dependency edges:")
-      domains.flatMap{getDomainDependencies(_)}.foreach(
-        e => println("    " + e.s.toString + " -> " +e.t.toString)
-      )
-*/
-/*sccs
-    val g = domains.flatMap { getDomainDependencies(_) }.
-      groupBy(_.s).
-      map(t => t._1 -> t._2.groupBy(_.t).map(tt => Pair(tt._1, tt._2.map(_.l).toSet))
-    )
-    val sccs = getSCCs(g)
-    val cyclicSCCs = sccs.filter{scc=>scc.exists(dp1=>g(dp1).exists(e=>(scc contains e._1) && e._2.exists{case dt:DomainType => true case _=>false}))}
-*/
-/*    g.foreach(
-      n=>n._2.foreach(
-        n2 => println("   " + n._1.toString + " -[" + n2._2.mkString("{",",","}") + "]-> " + n2._1.toString)
-      )
-    )
-*/
-/*    if (cyclicSCCs.nonEmpty) {
-      println("Potential type cycles found in:")
-      cyclicSCCs.foreach {
-        scc => println(scc.mkString("{",",","}"))
-      }
-    }
-*/
-* */
-
-    /*    val allDFApps union p.deepCollect({
-      case dfa : DomainFuncApp if dfa.typVarMap.values.forall(_.isConcrete)  => dfa.func(p).
-    }).flatten
-  */
-
     val domainFunctionAxiomMap = p.domains.flatMap(d => d.axioms.flatMap(a => a.exp.deepCollect{
       case dfa: DomainFuncApp => dfa -> a
     })).groupBy(pair => pair._1.funcname)
@@ -168,7 +104,6 @@ object DomainInstances {
         domainFunctionAxiomMap.get(dfa.funcname) match {
           case Some(ps) =>
             ps.flatMap(f = pair => {
-              //            assert(dfa.funcname==pair._1.funcname)
               val d2 = p.findDomain(dfa.domainName)
               val tvs = d2.typVars
               val axDom = p.findDomain(pair._2.domainName)
@@ -189,18 +124,12 @@ object DomainInstances {
         val d = p.findDomain(dfa.func(p).domainName)
         downClosureGround(DomainType(d, dfa.typVarMap))
     }).flatten.toSet
-
-/*    for (t <- gtis)
-      if (!allDirectGroundTypes.contains(t))
-        println(t.toString())
-*/
     allDirectGroundTypes = allDirectGroundTypes.union(gtis)
 
     val todo = new mutable.Queue[TypeCoordinate]()
     val done = new mutable.HashSet[TypeCoordinate]()
     val tcLuggage = new mutable.HashMap[TypeCoordinate, Map[TypeVar, Int]]()
 
-    //    val baseTCs = new mutable.HashSet[TypeCoordinate]()
     for (gt <- allDirectGroundTypes) {
       val tc = makeTypeCoordinate(gt)
       recursiveBottomUpEnqueue(todo, done, tc)
@@ -223,22 +152,12 @@ object DomainInstances {
       }
     }
 
-
-
-    //    var newTCs : mutable.Set[TypeCoordinate] = Set()
-
-
     while (todo.nonEmpty) {
       val tc = todo.dequeue()
       assert(done contains tc)
       assert(tcLuggage contains tc)
-//      println("   Adding type coordinate <" + tc.toString() + ">")
       val ntcs = new mutable.HashSet[TypeCoordinate]()
       tc match {
-        /*        case ctc : CollectionTypeCoordinate =>
-          val tc2 = ctc.etc
-          ntcs += tc2
-          tcLuggage(tc2)=Map()*/
         case _: AtomicTypeCoordinate =>
         case gitc@GenericInstanceTypeCoordinate(_, typeArgs) =>
           assert(typeArgs.forall { tc => done contains tc })
@@ -275,22 +194,9 @@ object DomainInstances {
         assert(ntc.subTCs.forall(tc=>(done union ntcs).contains(tc)))
         recursiveBottomUpEnqueue(todo, done, ntc)
       }
-
-      /*
-      ntcs.foreach {
-        tc2 =>{
-          assert (tcLuggage contains tc2)
-          done add tc2
-          todo.enqueue(tc2)
-        }
-      }
-  */
     }
 
-//    println("Calculating ground type instances done - total " + done.size)
     val result = done.map(_.t).toSet
-//    println("Calculating ground type instances result done - total " + result.size)
-
     result
   }
 
@@ -300,7 +206,13 @@ object DomainInstances {
         val ts2 = ts.toSeq.map(pair => (pair._1, substitute(pair._2, s, p))).toMap
         val argss = args map (substitute(_, s, p))
         DomainFuncApp(dfa.func(p), argss, ts2)(dfa.pos, dfa.info)
-      //            )(dfa.pos, dfa.info, substitute(dfa.typ,s), dfa.formalArgs.map(substitute(_,s)))
+      case des@AdtDestructorApp(_, _, ts) =>
+        val ts2 = ts.toSeq.map(pair => (pair._1, substitute(pair._2, s, p))).toMap
+        AdtDestructorApp(des.name, substitute(des.rcv, s, p), ts2)(des.pos, des.info, des.typ.substitute(ts2), des.adtName, des.errT)
+      case cons@AdtConstructorApp(_, args, ts) =>
+        val ts2 = ts.toSeq.map(pair => (pair._1, substitute(pair._2, s, p))).toMap
+        val argss = args map (substitute(_, s, p))
+        AdtConstructorApp(cons.name, argss, ts2)(cons.pos, cons.info, cons.typ.substitute(ts2), cons.adtName, cons.errT)
       case lvd@LocalVar(name, _) =>
         LocalVar(name, substitute(lvd.typ, s, p))(lvd.pos, lvd.info)
 
@@ -308,52 +220,21 @@ object DomainInstances {
         t.substitute(s)
     }
 
-  def showInstanceMembers(p: Program): Unit = {
-    println("================== Domain instances")
-    for (ti <- p.groundTypeInstances) {
-      ti match {
-        case dt: DomainType =>
-          println("Members for Domain type " + dt.toString())
-          val domain = p.findDomain(dt.domainName)
-          val (fs, as) = getInstanceMembers(p, dt)
-          //          val sfs = domain.functions.map(substitute(_,dt.typVarsMap,p))
-          for (f <- fs)
-            println("   " + f.toString())
-          for (a <- as)
-            println("   " + a.toString())
-          for (rf <- domain.functions.filter(f => fs.forall(ff => ff.name != f.name)))
-            println("   Rejected " + substitute(rf, dt.typVarsMap, p).toString())
-          for (ra <- domain.axioms.filter(
-            {
-              case a: NamedDomainAxiom => as.forall(
-                {
-                  case aa: NamedDomainAxiom => aa.name != a.name
-                  case _ => true
-                })
-              case _ => true
-            }))
-            println("   Rejected " + substitute(ra, dt.typVarsMap, p).toString())
-      case _ =>
-      }
-    }
-    println("================== Domain instances done")
-    val allTypes = collectGroundTypes(p,p)
-    for (t <- allTypes)
-      println(t.toString())
-  }
-
   def getFTVDepths(t: Type): Map[TypeVar, Int] = t match {
     case dt: DomainType =>
       dt.typVarsMap.flatMap {
         case (_: TypeVar, t: Type) => getFTVDepths(t).map { case (tv2: TypeVar, d: Int) => tv2 -> d.+(1) }
       }
+    case adt: AdtType =>
+      adt.typVarsMap.flatMap {
+        case (_: TypeVar, t: Type) => getFTVDepths(t).map { case (tv2: TypeVar, d: Int) => tv2 -> d.+(1) }
+      }
     case ct: CollectionType => getFTVDepths(ct.elementType).map { case (tv2: TypeVar, d: Int) => tv2 -> d.+(1) }
 
-    case m: MapType => {
+    case m: MapType =>
       val keys = getFTVDepths(m.keyType).map { case (t2, d) => t2 -> d.+(1) }
       val values = getFTVDepths(m.valueType).map { case (t2, d) => t2 -> d.+(1) }
       (keys.keySet union values.keySet).map(t2 => t2 -> (keys.get(t2).toList ++ values.get(t2).toList).max).toMap
-    }
 
     case tv: TypeVar => Map(tv -> 0)
     case _: BuiltInType => Map()
@@ -370,14 +251,13 @@ object DomainInstances {
   }
 
   def downClosure(t: Type): Set[Type] =
-  /*(if (t.isConcrete) Set(t) else  Set())*/ Set(t) ++ down1Types(t).flatMap(downClosure)
+    Set(t) ++ down1Types(t).flatMap(downClosure)
 
   def downClosureGround(t: Type): Set[Type] =
     (if (t.isConcrete) Set(t) else Set()) ++ down1Types(t).flatMap(downClosure)
 
 
   def collectDomainTypes(n: Node, p: Program): Set[Type] ={
-  //    d.deepCollect{case t : Type => downClosure(t)}.flatten.toSet
     n.shallowCollect {
       case t: Type =>
         downClosure(t)
@@ -398,10 +278,6 @@ object DomainInstances {
     }.flatten.toSet
   }
 
-  //////////////////////////////////////////////////////////////////////////////////////
-  //Type Coordinates
-  //A type coordinate is
-
   def makeTypeCoordinate(t: Type): TypeCoordinate = t match {
     case ct: CollectionType => new CollectionTypeCoordinate(ct,makeTypeCoordinate(ct.elementType))
     case mt: MapType => new MapTypeCoordinate(mt, makeTypeCoordinate(mt.keyType), makeTypeCoordinate(mt.valueType))
@@ -418,20 +294,11 @@ object DomainInstances {
 
     require(t.isConcrete)
     override def toString: String = t.toString()
-//    def down: Set[TypeCoordinate]
   }
-
-  sealed class CollectionClass
 
   object CollectionClass extends Enumeration {
     type CollectionClass = Value
     val Seq,Set,Multiset = Value
-
-    def makeCT(cc: CollectionClass,et: Type): CollectionType = cc match{
-      case Set => SetType(et)
-      case Seq => SeqType(et)
-      case Multiset => MultisetType(et)
-    }
 
     def getCC(ct: CollectionType): CollectionClass.Value =
     {
@@ -452,14 +319,12 @@ object DomainInstances {
 
   sealed case class AtomicTypeCoordinate(bit: BuiltInType) extends TypeCoordinate(bit){
     override def subTCs = Set()
-//    override def down: Set[TypeCoordinate] = Set(this)
   }
   abstract case class GenericInstanceTypeCoordinate(gname: String, args: Seq[TypeCoordinate])(val gt: GenericType)
     extends TypeCoordinate(gt){
     def typeSubstitution: Map[TypeVar, Type]
     override def subTCs: Set[TypeCoordinate] = args.toSet
 
-    //    override def down: Set[TypeCoordinate] = Set(this) ++ args.flatMap(_.down)
     def collectTypes(p: Program): Set[Type]
   }
   sealed class CollectionTypeCoordinate(ct: CollectionType, etc: TypeCoordinate)
@@ -480,78 +345,8 @@ object DomainInstances {
       collectDomainTypes(domain, p)
     }
     override def typeSubstitution: Map[TypeVar, Type] = dt.typVarsMap
-//    val typeArguments = dt.typeArguments
   }
 
-  case class TarjanNode[N](n: N, var es: Array[TarjanNode[N]], var index: Int, var lowIndex: Int)
-
-  class TarjanAR[N](val nodes: Map[N,TarjanNode[N]]) {
-    val r = new mutable.ListBuffer[mutable.Set[N]]()
-    var index: Int = 0
-    var stack = List.empty[N]
-    val set = new mutable.HashSet[N]()
-  }
-/*  def getSCCs[N, L](g: Map[N, Map[N, L]]): List[mutable.Set[N]] = {
-    val tNodes = g.map { e => e._1 -> TarjanNode(e._1, null, -1, 0) }
-    tNodes.values.foreach(n=>{n.es=g(n.n).keys.map(tNodes(_)).toArray})
-    val ar = new TarjanAR[N](tNodes)
-    for (n <- tNodes.values) {
-      if (n.index == -1) {
-        sccr(ar,n)
-      }
-    }
-    ar.r.toList
-  }
-  def sccr[N](ar:TarjanAR[N],n: TarjanNode[N]) :Unit =
-  {
-    n.index = ar.index
-    n.lowIndex = ar.index
-    ar.index+=1
-    // Set the depth index for v to the smallest unused index
-    ar.stack.push(n.n)
-    ar.set += n.n
-
-    for (sn <- n.es)
-    {
-      if (sn.index== -1)
-      {
-        sccr(ar,sn)
-        if (sn.lowIndex < n.lowIndex)
-          n.lowIndex = sn.lowIndex
-      }else if (ar.set contains sn.n){
-        if (sn.index < n.lowIndex)
-          n.lowIndex = sn.index
-      }
-    }
-    if (n.index==n.lowIndex)
-    {
-      assert (ar.set.nonEmpty)
-      assert (ar.set contains n.n)
-      var ns = new mutable.HashSet[N]
-      var u = ar.stack.top
-      do{
-        u = ar.stack.pop()
-        ar.set.remove(u)
-        ns += u
-      } while ( u!=n.n)
-      ar.r += ns
-    }
-  }
-
-  case class DPEdge(s: DomainParameter,l:Type,t:DomainParameter )
-
-  def getDomainDependencies(p:Program,d:Domain) : Set[DPEdge] =
-    getDomainTypeInstances(d).flatMap{
-      case dt2 : DomainType => dt2.typVarsMap.flatMap{
-        case (tv2:TypeVar,tv:TypeVar) => Seq(DPEdge(DomainParameter(d,tv), tv, DomainParameter(p.findDomain(dt2.domainName),tv2)))
-        case (tv2:TypeVar,dt3:DomainType) => getTVs(dt3).flatMap{
-          tv=>Seq(DPEdge(DomainParameter(d, tv), dt3, DomainParameter(p.findDomain(dt2.domainName), tv2)))
-        }
-        case _ => Seq()
-      }
-      case _ => Seq()
-    }
-             */
   def getTVs(t: Type): Set[TypeVar] =
     t match {
       case tv: TypeVar => Set(tv)
@@ -561,13 +356,5 @@ object DomainInstances {
       case m: MapType => getTVs(m.keyType) union getTVs(m.valueType)
       case _ => Set()
     }
-
-  def getDomainTypeInstances(d: Domain): Set[Type] =
-    d.deepCollect { case t: Type => t }.toSet
-
-  ///////////////////////////////////////////////////////////////////////////////////////////
-  //End generic type instances
-  ///////////////////////////////////////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////////////////////////////////////////////////
 
 }

@@ -110,7 +110,6 @@ object AdtConstructor {
   */
 case class AdtType(adtName: String, partialTypVarsMap: Map[TypeVar, Type])
                   (val typeParameters: Seq[TypeVar]) extends GenericExtensionType {
-
   override lazy val check: Seq[ConsistencyError] = if (!(typeParameters.toSet == typVarsMap.keys.toSet)) {
     Seq(ConsistencyError(s"${typeParameters.toSet} doesn't equal ${typVarsMap.keys.toSet}", NoPosition))
   } else Seq()
@@ -251,7 +250,7 @@ case class AdtDestructorApp(name: String, rcv: Exp, typVarMap: Map[TypeVar, Type
       val first = children.head.asInstanceOf[String]
       val second = children(1).asInstanceOf[Exp]
       val third = children(2).asInstanceOf[Map[TypeVar, Type]]
-      AdtDestructorApp(first, second, third)(this.pos, this.info, this.typ, this.adtName, this.errT).asInstanceOf[this.type]
+      AdtDestructorApp(first, second, third)(this.pos, this.info, this.typ.substitute(third), this.adtName, this.errT).asInstanceOf[this.type]
     }
   }
 
