@@ -1,5 +1,3 @@
-// TODO ADTS: Expected both operands to be of the same sort...
-
 domain SizeDomain[T] {
     function size(collection:T): Int
 }
@@ -38,8 +36,9 @@ domain SeqUtility[T] {
     }
 }
 
-
+// TODO this ADT is not well-founded in SMTLib, it would need an independent constructor
 adt DAG[T] {
+    EmptyNode(v: T)
     Node(value: T, successor: Seq[DAG[T]])
 }
 

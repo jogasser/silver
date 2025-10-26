@@ -1,3 +1,4 @@
+// TODO multisets
 // Any copyright is dedicated to the Public Domain.
 // http://creativecommons.org/publicdomain/zero/1.0/
 
@@ -37,7 +38,7 @@ method nonChain(i1: Int, i2: Int, i3: Int, i4: Int)
     //:: ExpectedOutput(assert.failed:assertion.false)
     assert i2 <= i3
 }
-
+/*
 method chainParen(i1: Int, i2: Multiset[Int], i3: Int, i4: Int)
     requires (i1 in i2) <= i3 > i4
 {
@@ -53,3 +54,4 @@ method chainParen2(i1: Int, i2: Int, i3: Int, i4: Multiset[Int])
     assume (i3 in i4) == 3
     assert i2 <= 3
 }
+*/

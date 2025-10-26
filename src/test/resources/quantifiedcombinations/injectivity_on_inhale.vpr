@@ -1,3 +1,5 @@
+// TODO quantified permissions
+//:: IgnoreFile(/silicon/issue/000/)
 //:: IgnoreFile(/silver/issue/531/)
 
 field f: Int

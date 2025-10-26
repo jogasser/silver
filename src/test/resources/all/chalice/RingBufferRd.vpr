@@ -1,5 +1,3 @@
-// TODO investigate further
-
 // Any copyright is dedicated to the Public Domain.
 // http://creativecommons.org/publicdomain/zero/1.0/
 
@@ -103,7 +101,7 @@ method Head(this: Ref) returns (x: Int)
     fold acc(Valid(this), write);
   }
 
-    method Pop(this: Ref) returns (x: Int)
+  method Pop(this: Ref) returns (x: Int)
     requires acc(Valid(this), write);
     requires Contents(this) != Seq(1)[1..];
     ensures acc(Valid(this), write);

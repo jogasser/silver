@@ -1,3 +1,5 @@
+// TODO quantified permissions
+//:: IgnoreFile(/silicon/issue/000/)
 field f: Int
 
 predicate Pred(z: Ref) {

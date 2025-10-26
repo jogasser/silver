@@ -1,5 +1,3 @@
-// TODO Timeout rec func
-
 adt Tree {
     Leaf()
     Node(v: Int, left: Tree, right: Tree)
