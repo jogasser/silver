@@ -25,8 +25,7 @@ object ImpureAssumeRewriter {
   private def placeholderVar[S](suffix: S, typ: Type): LocalVar = LocalVar(s"__iar__dummy$suffix", typ)()
   private def placeholderVar(typ: Type): LocalVar = placeholderVar("", typ)
 
-  private var funcs: Seq[DomainFunc] = Seq()
-  private var axioms: Seq[DomainAxiom] = Seq()
+  private var funcs: Seq[Function] = Seq()
   private var inverses = Seq.empty[DomainFunc]
   private var domains = Seq.empty[Domain]
 
@@ -138,13 +137,12 @@ object ImpureAssumeRewriter {
       val perms: Seq[Exp] = (contextWithoutRcv map (_._2)) :+ perm
 
       if (funcs.length <= contextWithoutRcv.length-1) {
-        val (fun, ax) = generateFunc(funcs.length + 1)
+        val fun = generateFunc(funcs.length + 1)
         funcs = funcs :+ fun
-        axioms = axioms :+ ax
       }
 
       val func = funcs(contextWithoutRcv.length-1)
-      val funcApp = DomainFuncApp(func, conds ++ perms, Map[TypeVar, Type]())()
+      val funcApp = FuncApp(func, conds ++ perms)()
 
       PermGeCmp(permLoc, funcApp)()
     }
@@ -159,7 +157,7 @@ object ImpureAssumeRewriter {
     * @param numOfConds number of conditional sums in this helper function
     * @return The new domain function as well as the axiom defining the value of the function
     */
-  def generateFunc(numOfConds: Int): (DomainFunc, DomainAxiom) = {
+  def generateFunc(numOfConds: Int): Function = {
     val name = s"__iar__assume_helper_$numOfConds"
 
     var conds: Seq[LocalVar] = Seq()
@@ -188,11 +186,7 @@ object ImpureAssumeRewriter {
       condExps.foldLeft[Exp](LocalVar("p_0", Perm)())((p, c) => PermAdd(p, c)())
     }
 
-    val fun = DomainFunc(name, formalArgs, Perm)(domainName = domainName)
-    val ax = Forall(formalArgs, Seq(Trigger(Seq(DomainFuncApp(fun, formalArgs map (_.localVar), Map[TypeVar, Type]())()))()), EqCmp(DomainFuncApp(fun, formalArgs map (_.localVar), Map[TypeVar, Type]())(), body)())()
-    val dax = NamedDomainAxiom(name + "_axiom", ax)(domainName = domainName)
-
-    (fun, dax)
+    Function(name, formalArgs, Perm, Seq(), Seq(), Some(body))()
   }
 
   def rewriteQPs(exp: Exp, program: Program): Exp = {
@@ -218,7 +212,6 @@ object ImpureAssumeRewriter {
     */
   def rewriteAssumes(p: Program): Program = {
     funcs = Seq.empty
-    axioms = Seq.empty
     inverses = Seq.empty
     domains = Seq.empty
 
@@ -235,9 +228,7 @@ object ImpureAssumeRewriter {
     } else {
       ViperStrategy.Slim({
         case p: Program =>
-          val assumeDomain = Domain(domainName, funcs, axioms)(info = Synthesized)
-
-          Program(p.domains ++ domains :+ assumeDomain, p.fields, p.functions, p.predicates, p.methods, p.extensions)(p.pos, p.info, p.errT)
+          Program(p.domains, p.fields, p.functions ++ funcs, p.predicates, p.methods, p.extensions)(p.pos, p.info, p.errT)
       }).execute(pAssume)
     }
   }
