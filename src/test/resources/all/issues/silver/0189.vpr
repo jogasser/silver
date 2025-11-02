@@ -1,5 +1,3 @@
-// TODO Triggering of functions
-//:: IgnoreFile(/silicon/issue/000/)
 function otherDummy(i: Int): Bool
 function thirdDummy(i: Int): Bool
 

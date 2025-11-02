@@ -1,6 +1,3 @@
-// TODO functions in quantifiers
-//:: IgnoreFile(/silicon/issue/000/)
-
 adt List {
     Nil()
     Cons(head: Int, tail: List)

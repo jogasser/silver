@@ -22,7 +22,7 @@ ensures acc(x.f) && acc(x.g) && x.f == old(x.f) && x.g == old(x.g) {
 method test1(x: Ref)
 requires acc(x.f)
 ensures acc(x.f) && x.f == old(x.f) {
-    package true --* (true --* acc(x.f)) {
+    package true --* (ts§rue --* acc(x.f)) {
         package true --* acc(x.f)
     }
     apply true --* (true --* acc(x.f))

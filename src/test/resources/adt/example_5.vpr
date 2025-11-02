@@ -36,7 +36,6 @@ domain SeqUtility[T] {
     }
 }
 
-// TODO this ADT is not well-founded in SMTLib, it would need an independent constructor
 adt DAG[T] {
     EmptyNode(v: T)
     Node(value: T, successor: Seq[DAG[T]])

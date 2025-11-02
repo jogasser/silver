@@ -1,4 +1,4 @@
-// TODO quantifier in functions
+// TODO domains
 //:: IgnoreFile(/silicon/issue/000/)
 domain VCTArray[CT] {
 
