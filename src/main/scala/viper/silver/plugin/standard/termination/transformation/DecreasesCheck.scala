@@ -23,7 +23,9 @@ import scala.collection.immutable.ListMap
 trait DecreasesCheck extends ProgramManager with ErrorReporter {
 
   protected val decreasingFunc: Option[DomainFunc] = program.findDomainFunctionOptionally("decreasing")
+  def decreasingFunc(t: Type): Option[Function] = program.functions.find(f => f.name == "decreasing" && f.formalArgs.length == 2 && f.formalArgs.head.typ == t && f.formalArgs(1).typ == t && f.result.typ == Bool)
   protected val boundedFunc: Option[DomainFunc] = program.findDomainFunctionOptionally("bounded")
+  def boundedFunc(t: Type): Option[Function] = program.functions.find(f => f.name == "bounded" && f.formalArgs.length == 1 && f.formalArgs.head.typ == t && f.result.typ == Bool)
 
 
   /**
@@ -70,7 +72,7 @@ trait DecreasesCheck extends ProgramManager with ErrorReporter {
   protected def createTupleCheck(tupleCondition: Option[Exp], biggerTuple: Seq[Exp], smallerTuple: Seq[Exp],
                                  errTrafo: ErrTrafo, reasonTrafoFactory: ReasonTrafoFactory): Stmt = {
 
-    if (decreasingFunc.isEmpty || boundedFunc.isEmpty) {
+    /*if (decreasingFunc.isEmpty || boundedFunc.isEmpty) {
       if (decreasingFunc.isEmpty) {
         reportDecreasingNotDefined(reasonTrafoFactory.offendingNode.pos)
       }
@@ -78,7 +80,7 @@ trait DecreasesCheck extends ProgramManager with ErrorReporter {
         reportBoundedNotDefined(reasonTrafoFactory.offendingNode.pos)
       }
       return EmptyStmt
-    }
+    }*/
 
     //val dtSmall = smallerTuple.tupleExpressions.map(_.replace(argMap))
 
@@ -110,18 +112,12 @@ trait DecreasesCheck extends ProgramManager with ErrorReporter {
    */
   private def createLexDecreaseCheck(biggerTuple: Seq[Exp], smallerTuple: Seq[Exp], reasonTrafoFactory: ReasonTrafoFactory): Exp = {
 
-    assert(decreasingFunc.isDefined)
-    assert(boundedFunc.isDefined)
+   // assert(decreasingFunc.isDefined)
+   // assert(boundedFunc.isDefined)
 
     val simpleReTrafo = reasonTrafoFactory.generateTupleSimpleFalse()
     val decreasesReTrafo = reasonTrafoFactory.generateTupleDecreasesFalse()
     val boundReTrafo = reasonTrafoFactory.generateTupleBoundedFalse()
-
-
-    val paramTypesDecr = decreasingFunc.get.formalArgs map (_.typ)
-    val argTypeVarsDecr = paramTypesDecr.flatMap(p => p.typeVariables)
-    val paramTypesBound = boundedFunc.get.formalArgs map (_.typ)
-    val argTypeVarsBound = paramTypesBound.flatMap(p => p.typeVariables)
 
     /**
      * Recursive function to create the check expression
@@ -147,16 +143,8 @@ trait DecreasesCheck extends ProgramManager with ErrorReporter {
         } else {
           // same type
 
-          val dec = DomainFuncApp(decreasingFunc.get,
-            Seq(smaller, bigger),
-            Map(argTypeVarsDecr.head -> smaller.typ,
-              argTypeVarsDecr.last -> bigger.typ))(errT = decreasesReTrafo)
-
-          val bound = DomainFuncApp(boundedFunc.get,
-            Seq(bigger),
-            ListMap(argTypeVarsBound.head -> bigger.typ,
-              argTypeVarsDecr.last -> bigger.typ
-            ))(errT = boundReTrafo)
+          val dec = FuncApp(decreasingFunc(bigger.typ).get, Seq(smaller, bigger))(errT = decreasesReTrafo)
+          val bound = FuncApp(boundedFunc(bigger.typ).get, Seq(bigger))(errT = boundReTrafo)
 
           val andPart = And(dec, bound)(errT = simpleReTrafo)
 

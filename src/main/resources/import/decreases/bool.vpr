@@ -1,15 +1,10 @@
 // Any copyright is dedicated to the Public Domain.
 // http://creativecommons.org/publicdomain/zero/1.0/
 
-import "declaration.vpr"
+function decreasing(arg1:Bool, arg2:Bool):Bool {
+    !arg1 && arg2
+}
 
-domain BoolWellFoundedOrder{
-    //Booleans
-    axiom bool_ax_dec{
-        decreasing(false, true)
-    }
-    axiom bool_ax_bound{
-        forall bool1: Bool :: {bounded(bool1)}
-            bounded(bool1)
-    }
+function bounded(arg1:Bool):Bool {
+    arg1
 }
