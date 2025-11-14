@@ -1,3 +1,5 @@
+// ADT contains
+//:: IgnoreFile(/silicon/issue/000/)
 @annot()
 import <adt/derives.vpr>
 

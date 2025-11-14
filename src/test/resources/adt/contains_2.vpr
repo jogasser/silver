@@ -1,3 +1,5 @@
+// ADT contains
+//:: IgnoreFile(/silicon/issue/000/)
 import <adt/derives.vpr>
 
 adt List[T] {
