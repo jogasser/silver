@@ -8,6 +8,7 @@ package viper.silver.ast.utility
 
 import viper.silver.ast
 import viper.silver.ast._
+import viper.silver.plugin.standard.adt.{AdtConstructorApp, AdtDestructorApp}
 
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -56,6 +57,8 @@ object Triggers {
       case fa: FieldAccess => fa.getArgs
       case Old(pt: PossibleTrigger) => pt.getArgs
       case LabelledOld(pt: PossibleTrigger, _) => pt.getArgs
+      case adt: AdtDestructorApp => Seq()
+      case adt: AdtConstructorApp => Seq()
       case _ => sys.error(s"Unexpected expression $e")
     }
 
