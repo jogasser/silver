@@ -9,6 +9,7 @@ predicate valid(list: Ref) {
 }
 
 function size(list: Ref): Int
+  requires list != null
   requires acc(valid(list), wildcard)
   ensures result >= 1
 {

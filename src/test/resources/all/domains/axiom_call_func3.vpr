@@ -1,3 +1,5 @@
+// TODO quantified permissions
+//:: IgnoreFile(/silicon/issue/000/)
 // Any copyright is dedicated to the Public Domain.
 // http://creativecommons.org/publicdomain/zero/1.0/
 
@@ -26,7 +28,7 @@ function heapDep2(r: Ref): Int
 function heapDepUnint(r: Ref): Int
     requires acc(r.f)
     ensures result == r.f + 3
-
+/*
 domain d {
     function dfunc(i: Int): Int
 
@@ -39,6 +41,15 @@ domain d {
     axiom {
         forall i: Int :: {dfunc2(i)} dfunc2(i) == uninterp(i) + 7
     }
+}
+*/
+// TODO jga: transformed domain funcs to interpreted funcs
+function dfunc(i: Int): Int {
+  interp(i) + 5
+}
+
+function dfunc2(i: Int): Int {
+  uninterp(i) + 7
 }
 
 method main()

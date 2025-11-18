@@ -1,3 +1,4 @@
+// TODO domains - won't work with non-domain functions since wands differentiate between domain & non-domain functions
 // Any copyright is dedicated to the Public Domain.
 // http://creativecommons.org/publicdomain/zero/1.0/
 
