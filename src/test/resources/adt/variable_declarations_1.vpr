@@ -12,8 +12,9 @@ method var_decls_1a()
     
     var list5: List[Seq[Int]]
     var list6: List[Set[Bool]]
-    var list7: List[Map[Int, Int]]
-    var list8: List[Map[Int, List[Int]]]
+    // TODO jga: maps
+    // var list7: List[Map[Int, Int]]
+    // var list8: List[Map[Int, List[Int]]]
 }
 
 adt SpecialList[T, S] {

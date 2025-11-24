@@ -1,11 +1,7 @@
-// TODO: Timeout rec func
-//:: IgnoreFile(/silicon/issue/000/)
 // Any copyright is dedicated to the Public Domain.
 // http://creativecommons.org/publicdomain/zero/1.0/
 
-domain Unknown {
-  function unknown(x:Int): Perm
-}
+function unknown(x:Int): Perm
 
 field unknown_x: Int
 field unknown_y: Int

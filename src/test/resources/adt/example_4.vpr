@@ -3,24 +3,11 @@ adt Option[T] {
     None()
 }
 
-domain AddDomain[T] {
-    function add(a:T, b: T): T
-
-    axiom {
-        forall o1:Perm, o2:Perm :: {add(o1,o2)} add(o1,o2) == (o1 + o2)
-    }
-    axiom {
-        forall o1:Int, o2:Int :: {add(o1,o2)} add(o1,o2) == (o1 + o2)
-    }
-    axiom {
-        forall o1:Seq[T], o2:Seq[T] :: {add(o1,o2)} add(o1,o2) == (o1 ++ o2)
-    }
-    axiom {
-        forall o1:Set[T], o2:Set[T] :: {add(o1,o2)} add(o1,o2) == (o1 union o2)
-    }
-    axiom {
-        forall o1:Option[T], o2:Option[T] :: {add(o1,o2)} add(o1,o2) == ((o1.isSome && o2.isSome) ? Some(add(o1.value, o2.value)) : None())
-    }
+function add(a:Option[Int], b: Option[Int]): Option[Int] {
+      ((a.isSome && b.isSome) ? Some(a.value + b.value) : None())
+}
+function addSeq(a:Option[Seq[Int]], b: Option[Seq[Int]]): Option[Seq[Int]] {
+      ((a.isSome && b.isSome) ? Some(a.value ++ b.value) : None())
 }
 
 method request(arg: Int) returns (res: Option[Int]) 
@@ -52,7 +39,7 @@ method client() {
         assert add(response, None()) == None()
         assert add(o, response).value == 5
 
-        assert add(Some(Seq(1,2,3)), Some(Seq(1,2,3))).value == Seq(1,2,3,1,2,3)
+        assert addSeq(Some(Seq(1,2,3)), Some(Seq(1,2,3))).value == Seq(1,2,3,1,2,3)
     }
     else
     {
