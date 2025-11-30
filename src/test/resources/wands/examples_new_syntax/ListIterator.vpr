@@ -329,7 +329,8 @@ ensures this != null {
 
 //used to undo the reversal of the predicate structure
 method Node_swap(this: Ref, fst: Ref, nxt: Ref)
-requires fst != null && Node_reverse(this) && Node_rev_next(this) == nxt && (nxt != null ==> Node_state(nxt)) && Node_first(this) == fst
+requires Node_reverse(this)
+requires fst != null && Node_rev_next(this) == nxt && (nxt != null ==> Node_state(nxt)) && Node_first(this) == fst
 ensures  fst != null && Node_state(fst) {
   unfold Node_reverse(this)
   if (this.Node_prev == null) {

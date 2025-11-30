@@ -1,5 +1,3 @@
-// TODO triggering does not work like that anymore, test should be changed
-//:: IgnoreFile(/silicon/issue/000/)
 field f : Ref
 
 function g(x: Ref) : Bool
