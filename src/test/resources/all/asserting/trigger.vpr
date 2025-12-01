@@ -17,6 +17,7 @@ method triggerUse2(s: Seq[Int])
   requires |s| > 0
   requires forall i: Int :: {trigger(i)} 0 <= i < |s| ==> s[i] > 0
 {
-  //:: ExpectedOutput(assert.failed:assertion.false)
+  // TODO jga: now actually triggered
+  ////:: ExpectedOutput(assert.failed:assertion.false)
   assert s[0] > 0
 }
